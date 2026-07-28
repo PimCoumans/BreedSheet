@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Breed: Decodable {
+struct Breed: Decodable, Identifiable {
 
 	struct BreedImage: Decodable {
 		let url: URL

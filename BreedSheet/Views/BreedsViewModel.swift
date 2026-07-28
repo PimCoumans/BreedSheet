@@ -44,7 +44,7 @@ extension BreedsViewModel.State: Equatable {
 		case (.idle, .idle): true
 		case (.loading, .loading): true
 		case (.loaded, .loaded): true
-		case (.failed(let lhsError), .failed(let rhsError)):
+		case (.failed(_), .failed(_)):
 			true // For sake of simplicity/brevity, not comparing server errors here
 		default: false
 		}
