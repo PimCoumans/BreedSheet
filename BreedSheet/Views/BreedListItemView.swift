@@ -26,7 +26,7 @@ struct BreedListItemView: View {
 				}
 			}
 			.frame(width: 60, height: 60)
-			.clipShape(ContainerRelativeShape()) // Makes for nicely aligned corner radii
+			.clipShape(RoundedRectangle(cornerRadius: 8))
 
 			Text(breed.name)
 				.font(.headline)
