@@ -13,40 +13,43 @@ struct BreedsListView: View {
 
 	var body: some View {
 		List(viewModel.breads) { breed in
-			HStack(spacing: 16) {
-				AsyncImage(url: breed.image.url) { phase in
-					switch phase {
-					case .failure:
-						Image(systemName: "questionmark.circle")
-							.foregroundStyle(Color.secondary)
-					case .success(let image):
-						image.resizable().aspectRatio(contentMode: .fill).frame(width: 60, height: 60)
-					case .empty:
-						Color.secondary
-					@unknown default:
-						EmptyView()
-					}
-				}
-				.frame(width: 60, height: 60)
-				.clipShape(RoundedRectangle(cornerRadius: 8))
-
-				Text(breed.name)
-					.font(.headline)
-					.lineLimit(2)
-			}
+			BreedListItemView(breed: breed)
 		}
-		.listStyle(.plain)
 		.task {
 			await viewModel.loadBreeds()
 		}
-		.overlay {
+		.overlay(content: overlayContent)
+	}
+}
+
+extension BreedsListView {
+	private func overlayContent() -> some View {
+		Group {
 			switch viewModel.state {
-			case .loading:
-				ProgressView()
-			case .failed:
-				ContentUnavailableView("Failed to load breeds", systemImage: "exclamationmark.triangle")
-			default:
-				EmptyView()
+			case .loading: ProgressView()
+			case .failed(let error): errorView(error)
+			case .loaded where viewModel.breads.isEmpty:
+				emptyStateView
+			default: EmptyView()
+			}
+		}
+		.frame(maxWidth: .infinity, maxHeight: .infinity)
+	}
+
+	private var emptyStateView: some View {
+		Text("No breeds found")
+			.foregroundColor(.secondary)
+	}
+
+	private func errorView(_ error: Error) -> some View {
+		// Ignore provided error for now
+		VStack(spacing: 12) {
+			Image(systemName: "exclamationmark.triangle")
+				.font(.title2)
+				.foregroundColor(.orange)
+			Text("Failed to load breeds")
+			Button("Retry") {
+				Task { await viewModel.loadBreeds() }
 			}
 		}
 	}
