@@ -15,6 +15,9 @@ struct BreedsListView: View {
 		List(viewModel.breads) { breed in
 			BreedListItemView(breed: breed)
 		}
+		.refreshable {
+			await viewModel.loadBreeds()
+		}
 		.task {
 			await viewModel.loadBreeds()
 		}
