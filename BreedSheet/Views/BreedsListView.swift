@@ -28,8 +28,7 @@ extension BreedsListView {
 			switch viewModel.state {
 			case .loading: ProgressView()
 			case .failed(let error): errorView(error)
-			case .loaded where viewModel.breads.isEmpty:
-				emptyStateView
+			case .loaded where viewModel.breads.isEmpty: emptyStateView
 			default: EmptyView()
 			}
 		}

@@ -9,12 +9,13 @@ import SwiftUI
 
 @main
 struct BreedSheetApp: App {
+
+	@State private var breedsViewModel = BreedsViewModel(apiClient: LiveCatAPI())
+
 	var body: some Scene {
 		WindowGroup {
-			let api = LiveCatAPI()
-			let viewModel = BreedsViewModel(apiClient: api)
 			NavigationStack {
-				BreedsListView(viewModel: viewModel)
+				BreedsListView(viewModel: breedsViewModel)
 			}
 		}
 	}
