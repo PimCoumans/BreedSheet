@@ -13,22 +13,21 @@ struct BreedsListView: View {
 
 	var body: some View {
 		List {
-			ForEach(viewModel.breads) { breed in
+			ForEach(viewModel.breeds) { breed in
 				BreedListItemView(breed: breed)
 					.onAppear {
-						guard breed == viewModel.breads.last else {
+						guard breed == viewModel.breeds.last else {
 							return
 						}
 						Task {
-							print("Asking for more!")
 							await viewModel.loadNextPageIfPossible()
 						}
 					}
 			}
-			if viewModel.state == .loading {
-				ProgressView()
-			}
+			paginationView()
 		}
+		.accessibilityIdentifier("breedsList")
+		.navigationTitle("Cat Breeds")
 		.refreshable {
 			await viewModel.reload()
 		}
@@ -44,7 +43,7 @@ extension BreedsListView {
 		Group {
 			switch viewModel.state {
 			case .failed(let error): errorView(error)
-			case .loaded where viewModel.breads.isEmpty: emptyStateView
+			case .loaded where viewModel.breeds.isEmpty: emptyStateView
 			default: EmptyView()
 			}
 		}
@@ -56,13 +55,14 @@ extension BreedsListView {
 			.foregroundColor(.secondary)
 	}
 
-	private func errorView(_ error: Error) -> some View {
-		// Ignore provided error for now
+	private func errorView(_ error: CatAPIError) -> some View {
 		VStack(spacing: 12) {
 			Image(systemName: "exclamationmark.triangle")
 				.font(.title2)
 				.foregroundColor(.orange)
-			Text("Failed to load breeds")
+			Text(error.localizedDescription)
+				.multilineTextAlignment(.center)
+				.padding(.horizontal)
 			Button("Retry") {
 				Task { await viewModel.reload() }
 			}
@@ -74,8 +74,7 @@ extension BreedsListView {
 		if viewModel.state == .loading {
 			ProgressView()
 				.frame(maxWidth: .infinity)
-		} else {
-			EmptyView()
+				.accessibilityIdentifier("loadingIndicator")
 		}
 	}
 }

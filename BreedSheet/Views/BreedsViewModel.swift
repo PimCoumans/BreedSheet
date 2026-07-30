@@ -16,7 +16,7 @@ class BreedsViewModel {
 		case failed(CatAPIError)
 	}
 
-	var breads: [Breed] = []
+	var breeds: [Breed] = []
 	var state: State = .idle
 
 	var hasMoreContent: Bool = true
@@ -50,9 +50,9 @@ class BreedsViewModel {
 		do {
 			let nextPage = try await apiClient.fetchBreeds(page: page, limit: pageLimit)
 			if page == 0 {
-				breads = nextPage
+				breeds = nextPage
 			} else {
-				breads.append(contentsOf: nextPage)
+				breeds.append(contentsOf: nextPage)
 			}
 			page += 1
 			hasMoreContent = nextPage.isEmpty == false
