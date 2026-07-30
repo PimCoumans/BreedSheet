@@ -8,17 +8,16 @@
 import Foundation
 
 struct LiveCatAPI: CatAPI {
-	private let baseURL = URL(string: "https://api.thecatapi.com/v1")!
+	private let baseURL: URL
+	private let apiKey: String
 
-	// Ideally a key like this should not be stored in the repository, but should come from
-	// a protected environment and only stored locally in a separate git ignored file
-	private let apiKey = "live_twEFx2zORzgoxBsvvu2qztLXFpE5fEaGQdVdEv8cg8xp8bcyWEZKLgNggKWcvhvS"
-
-	private let urlSession = URLSession.shared // Can be a custom session with special configuration
-
+	private let urlSession: URLSession
 	private let jsonDecoder = JSONDecoder()
 
-	init() {
+	init(baseURL: URL, apiKey: String, urlSession: URLSession = .shared) {
+		self.baseURL = baseURL
+		self.apiKey = apiKey
+		self.urlSession = urlSession
 		jsonDecoder.keyDecodingStrategy = .convertFromSnakeCase
 	}
 
