@@ -7,13 +7,13 @@
 
 import Foundation
 
-struct Breed: Decodable, Identifiable {
-	struct BreedImage: Decodable {
+struct Breed: Decodable, Identifiable, Equatable {
+	struct BreedImage: Decodable, Equatable {
 		let url: URL
 	}
 
 	let id: String
 	let name: String
 
-	let image: BreedImage
+	let image: BreedImage?
 }

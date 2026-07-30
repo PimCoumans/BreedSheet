@@ -63,13 +63,10 @@ extension LiveCatAPI {
 			throw .responseError(statusCode: httpResponse.statusCode)
 		}
 
-		let parsedResponse: Response
 		do {
-			parsedResponse = try jsonDecoder.decode(Response.self, from: data)
+			return try jsonDecoder.decode(Response.self, from: data)
 		} catch {
 			throw .jsonError(underlyingError: error)
 		}
-
-		return parsedResponse
 	}
 }

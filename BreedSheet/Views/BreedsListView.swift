@@ -12,14 +12,28 @@ struct BreedsListView: View {
 	@Bindable var viewModel: BreedsViewModel
 
 	var body: some View {
-		List(viewModel.breads) { breed in
-			BreedListItemView(breed: breed)
+		List {
+			ForEach(viewModel.breads) { breed in
+				BreedListItemView(breed: breed)
+					.onAppear {
+						guard breed == viewModel.breads.last else {
+							return
+						}
+						Task {
+							print("Asking for more!")
+							await viewModel.loadNextPageIfPossible()
+						}
+					}
+			}
+			if viewModel.state == .loading {
+				ProgressView()
+			}
 		}
 		.refreshable {
-			await viewModel.loadBreeds()
+			await viewModel.reload()
 		}
 		.task {
-			await viewModel.loadBreeds()
+			await viewModel.loadNextPage()
 		}
 		.overlay(content: overlayContent)
 	}
@@ -29,7 +43,6 @@ extension BreedsListView {
 	private func overlayContent() -> some View {
 		Group {
 			switch viewModel.state {
-			case .loading: ProgressView()
 			case .failed(let error): errorView(error)
 			case .loaded where viewModel.breads.isEmpty: emptyStateView
 			default: EmptyView()
@@ -51,8 +64,18 @@ extension BreedsListView {
 				.foregroundColor(.orange)
 			Text("Failed to load breeds")
 			Button("Retry") {
-				Task { await viewModel.loadBreeds() }
+				Task { await viewModel.reload() }
 			}
+		}
+	}
+
+	@ViewBuilder
+	private func paginationView() -> some View {
+		if viewModel.state == .loading {
+			ProgressView()
+				.frame(maxWidth: .infinity)
+		} else {
+			EmptyView()
 		}
 	}
 }
