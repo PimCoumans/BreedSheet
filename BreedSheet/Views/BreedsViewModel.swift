@@ -19,6 +19,10 @@ class BreedsViewModel {
 	var breads: [Breed] = []
 	var state: State = .idle
 
+	var hasMoreContent: Bool = true
+	private var page: Int = 0
+	private let pageLimit: Int = 12
+
 	@ObservationIgnored
 	private let apiClient: any CatAPI
 
@@ -26,10 +30,32 @@ class BreedsViewModel {
 		self.apiClient = apiClient
 	}
 
-	func loadBreeds() async {
+	func reload() async {
+		page = 0
+		await loadNextPage()
+	}
+
+	func loadNextPageIfPossible() async {
+		guard hasMoreContent else {
+			return
+		}
+		await loadNextPage()
+	}
+
+	func loadNextPage() async {
+		guard state != .loading else {
+			return
+		}
 		state = .loading
 		do {
-			breads = try await apiClient.fetchBreeds(page: 0, limit: 12)
+			let nextPage = try await apiClient.fetchBreeds(page: page, limit: pageLimit)
+			if page == 0 {
+				breads = nextPage
+			} else {
+				breads.append(contentsOf: nextPage)
+			}
+			page += 1
+			hasMoreContent = nextPage.isEmpty == false
 			state = .loaded
 		} catch {
 			state = .failed(error)

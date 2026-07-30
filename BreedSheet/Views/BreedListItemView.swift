@@ -12,7 +12,7 @@ struct BreedListItemView: View {
 	
 	var body: some View {
 		HStack(spacing: 16) {
-			AsyncImage(url: breed.image.url) { phase in
+			AsyncImage(url: breed.image?.url) { phase in
 				switch phase {
 				case .failure:
 					Image(systemName: "questionmark.circle")
