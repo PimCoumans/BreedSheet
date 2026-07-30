@@ -32,12 +32,17 @@ struct LiveCatAPI: CatAPI {
 
 extension LiveCatAPI {
 	enum HTTPMethod: String {
-		case GET = "GET"
-		case POST = "POST"
+		case get = "GET"
+		case post = "POST"
+	}
+
+	/// Error body The Cat API returns for non-2xx responses, e.g. `{"message": "Invalid API Key"}`.
+	private struct ErrorBody: Decodable {
+		let message: String?
 	}
 
 	private func performRequest<Response: Decodable>(
-		for path: String, method: HTTPMethod = .GET, queryItems: [URLQueryItem] = []
+		for path: String, method: HTTPMethod = .get, queryItems: [URLQueryItem] = []
 	) async throws(CatAPIError) -> Response {
 		let url = baseURL.appending(path: path).appending(queryItems: queryItems)
 		var request = URLRequest(url: url)
@@ -47,25 +52,25 @@ extension LiveCatAPI {
 		let data: Data
 		let response: URLResponse
 
-		// Wrapped thrown errors in CatAPIError
 		do {
 			(data, response) = try await urlSession.data(for: request)
 		} catch {
-			throw .serverError(underlyingError: error)
+			throw .transportError(underlyingError: error)
 		}
 
 		guard let httpResponse = response as? HTTPURLResponse else {
-			throw .serverError(underlyingError: URLError(.badServerResponse))
+			throw .transportError(underlyingError: URLError(.badServerResponse))
 		}
 
 		guard (200...299).contains(httpResponse.statusCode) else {
-			throw .responseError(statusCode: httpResponse.statusCode)
+			let message = try? jsonDecoder.decode(ErrorBody.self, from: data).message
+			throw .httpError(statusCode: httpResponse.statusCode, message: message)
 		}
 
 		do {
 			return try jsonDecoder.decode(Response.self, from: data)
 		} catch {
-			throw .jsonError(underlyingError: error)
+			throw .decodingError(underlyingError: error)
 		}
 	}
 }

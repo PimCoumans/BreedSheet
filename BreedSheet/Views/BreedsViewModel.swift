@@ -9,7 +9,7 @@ import Observation
 
 @Observable
 class BreedsViewModel {
-	enum State {
+	enum State: Equatable {
 		case idle
 		case loading
 		case loaded
@@ -59,20 +59,6 @@ class BreedsViewModel {
 			state = .loaded
 		} catch {
 			state = .failed(error)
-		}
-	}
-}
-
-extension BreedsViewModel.State: Equatable {
-	// Custom Equatable conformance, making it easier to compare states
-	static func == (lhs: BreedsViewModel.State, rhs: BreedsViewModel.State) -> Bool {
-		switch (lhs, rhs) {
-		case (.idle, .idle): true
-		case (.loading, .loading): true
-		case (.loaded, .loaded): true
-		case (.failed(_), .failed(_)):
-			true // For sake of simplicity/brevity, not comparing server errors here
-		default: false
 		}
 	}
 }
