@@ -7,8 +7,8 @@
 
 import Foundation
 
-struct Breed: Decodable, Identifiable, Equatable {
-	struct BreedImage: Decodable, Equatable {
+struct Breed: nonisolated Decodable, Identifiable, Equatable {
+	struct BreedImage: nonisolated Decodable, Equatable {
 		let url: URL
 	}
 
