@@ -50,8 +50,22 @@ final class PreviewCatAPI: CatAPI {
 
 extension PreviewCatAPI {
 	static let sampleBreeds = [
-		Breed(id: "abys", name: "Abyssinian", image: .init(url: URL(string: "https://cdn2.thecatapi.com/images/0XYvRd7oD.jpg")!)),
-		Breed(id: "aege", name: "Aegean", image: .init(url: URL(string: "https://cdn2.thecatapi.com/images/ozEvzdVM-.jpg")!))
+		Breed(
+			id: "abys",
+			name: "Abyssinian",
+			origin: "Ethiopia",
+			temperament: "Active, Energetic, Independent, Intelligent, Gentle",
+			lifeSpan: "9 - 15",
+			image: .init(url: URL(string: "https://cdn2.thecatapi.com/images/0XYvRd7oD.jpg")!)
+		),
+		Breed(
+			id: "aege",
+			name: "Aegean",
+			origin: "Greece",
+			temperament: "Affectionate, Social, Intelligent, Playful, Active",
+			lifeSpan: "9 - 12",
+			image: .init(url: URL(string: "https://cdn2.thecatapi.com/images/ozEvzdVM-.jpg")!)
+		)
 	]
 
 	/// Launch environment key used to se to specific scenario
