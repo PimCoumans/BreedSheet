@@ -1,6 +1,8 @@
 #  BreedSheet code assessment
 *A cheatsheet for cat breeds*
 
+![App Screenshot](Assets/Screenshot.png)
+
 ### The task
 This simple project fetches cat breeds from The Cat API and displays them in a list with an image and title. For this
 assessment I chose to keep the UI as simple as possible while focussing on a testable and easy to understand
