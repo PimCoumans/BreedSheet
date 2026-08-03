@@ -49,13 +49,15 @@ The project is set up to be `@MainActor` by default, so all components don’t n
 - Performance is not optimized. `AsyncImage` can cause performance hitches when loading during scrolling
 
 ### How I Would Continue
-A search bar would be a nice extra feature as I'm finding myself wanting to look up the breeds of our cats (European
-Shorthair, currently, but before that a Russian Blue).
-I'd also love to make the app more lively. Give it an icon, a fun color scheme and add some animations.
-
-While scrolling the images that load in can cause hitches. This could be improved by using something else than
-`AsyncImage`, using a 3rd party library that loads and caches the images and makes sure they're deflated off the main
+- The codebase could definitely use some linting. In retrospect this should have been one of the first things added to
+the project, with an acceptable set of rules. An automatically running SwiftFormat/swift-format would help here as well.
+- While loading the initial set of breeds, the app should show a skeleton placeholder. This pre-populates the list with
+a few items that seem as if only their contents are still being loaded.
+- A search bar would be a nice extra feature as I'm finding myself wanting to look up the breeds of our cats (European
+Shorthair currently, but before that a Russian Blue).
+- I'd also love to make the app more lively. Give it an icon, a fun color scheme and add some animations.
+- While scrolling the images that load in can cause tiny hitches. This could be improved by using something else than
+`AsyncImage`, but a 3rd party library that loads and caches the images and makes sure they're deflated off the main
 thread.
-
-For now the architecture is fine given the limitations, but with more views, view models and API calls, code needs to be
-separated more clearly using coordinators. Ideally dependencies should be grouped together. 
+- For now the architecture is fine given the limitations, but with more views, view models and API calls, code needs to
+be separated more clearly and the proper coordinators need to be introduced. 
