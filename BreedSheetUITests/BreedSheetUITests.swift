@@ -23,14 +23,13 @@ final class BreedSheetUITests: XCTestCase {
     }
 
     @MainActor
-    func testExample() throws {
-        // UI tests must launch the application that they test.
+    func testAppLaunchesAndShowsBreedsList() throws {
         let app = XCUIApplication()
+        app.launchEnvironment["UITEST_SCENARIO"] = "success"
         app.launch()
 
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // XCUIAutomation Documentation
-        // https://developer.apple.com/documentation/xcuiautomation
+        XCTAssertTrue(app.navigationBars["Cat Breeds"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.descendants(matching: .any)["breedsList"].exists)
     }
 
     @MainActor
