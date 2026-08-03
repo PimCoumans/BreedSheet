@@ -9,14 +9,14 @@ import Observation
 
 @Observable
 class BreedsViewModel {
-	enum State {
+	enum State: Equatable {
 		case idle
 		case loading
 		case loaded
 		case failed(CatAPIError)
 	}
 
-	var breads: [Breed] = []
+	var breeds: [Breed] = []
 	var state: State = .idle
 
 	var hasMoreContent: Bool = true
@@ -50,29 +50,15 @@ class BreedsViewModel {
 		do {
 			let nextPage = try await apiClient.fetchBreeds(page: page, limit: pageLimit)
 			if page == 0 {
-				breads = nextPage
+				breeds = nextPage
 			} else {
-				breads.append(contentsOf: nextPage)
+				breeds.append(contentsOf: nextPage)
 			}
 			page += 1
 			hasMoreContent = nextPage.isEmpty == false
 			state = .loaded
 		} catch {
 			state = .failed(error)
-		}
-	}
-}
-
-extension BreedsViewModel.State: Equatable {
-	// Custom Equatable conformance, making it easier to compare states
-	static func == (lhs: BreedsViewModel.State, rhs: BreedsViewModel.State) -> Bool {
-		switch (lhs, rhs) {
-		case (.idle, .idle): true
-		case (.loading, .loading): true
-		case (.loaded, .loaded): true
-		case (.failed(_), .failed(_)):
-			true // For sake of simplicity/brevity, not comparing server errors here
-		default: false
 		}
 	}
 }

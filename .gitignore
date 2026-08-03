@@ -1,0 +1,18 @@
+# Local secrets — see Configuration/Secrets.template.xcconfig
+Configuration/Secrets.xcconfig
+
+# Xcode
+build/
+DerivedData/
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+*.hmap
+
+# Swift Package Manager
+.swiftpm/
+.build/
+
+# macOS
+.DS_Store

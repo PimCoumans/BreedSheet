@@ -8,18 +8,18 @@
 import Foundation
 
 struct LiveCatAPI: CatAPI {
-	private let baseURL = URL(string: "https://api.thecatapi.com/v1")!
+	private let baseURL: URL
+	private let apiKey: String
+	private let urlSession: URLSession
+	private let jsonDecoder: JSONDecoder
 
-	// Ideally a key like this should not be stored in the repository, but should come from
-	// a protected environment and only stored locally in a separate git ignored file
-	private let apiKey = "live_twEFx2zORzgoxBsvvu2qztLXFpE5fEaGQdVdEv8cg8xp8bcyWEZKLgNggKWcvhvS"
-
-	private let urlSession = URLSession.shared // Can be a custom session with special configuration
-
-	private let jsonDecoder = JSONDecoder()
-
-	init() {
-		jsonDecoder.keyDecodingStrategy = .convertFromSnakeCase
+	init(baseURL: URL, apiKey: String, urlSession: URLSession = .shared) {
+		self.baseURL = baseURL
+		self.apiKey = apiKey
+		self.urlSession = urlSession
+		let decoder = JSONDecoder()
+		decoder.keyDecodingStrategy = .convertFromSnakeCase
+		self.jsonDecoder = decoder
 	}
 
 	func fetchBreeds(page: Int = 0, limit: Int = 12) async throws(CatAPIError) -> [Breed] {
@@ -33,12 +33,17 @@ struct LiveCatAPI: CatAPI {
 
 extension LiveCatAPI {
 	enum HTTPMethod: String {
-		case GET = "GET"
-		case POST = "POST"
+		case get = "GET"
+		case post = "POST"
 	}
 
-	private func performRequest<Response: Decodable>(
-		for path: String, method: HTTPMethod = .GET, queryItems: [URLQueryItem] = []
+	/// Error body The Cat API returns for non-2xx responses, e.g. `{"message": "Invalid API Key"}`.
+	private struct ErrorBody: nonisolated Decodable, Sendable {
+		let message: String?
+	}
+
+	private func performRequest<Response: Decodable & Sendable>(
+		for path: String, method: HTTPMethod = .get, queryItems: [URLQueryItem] = []
 	) async throws(CatAPIError) -> Response {
 		let url = baseURL.appending(path: path).appending(queryItems: queryItems)
 		var request = URLRequest(url: url)
@@ -48,25 +53,31 @@ extension LiveCatAPI {
 		let data: Data
 		let response: URLResponse
 
-		// Wrapped thrown errors in CatAPIError
 		do {
 			(data, response) = try await urlSession.data(for: request)
 		} catch {
-			throw .serverError(underlyingError: error)
+			throw .transportError(underlyingError: error)
 		}
 
 		guard let httpResponse = response as? HTTPURLResponse else {
-			throw .serverError(underlyingError: URLError(.badServerResponse))
+			throw .transportError(underlyingError: URLError(.badServerResponse))
 		}
 
 		guard (200...299).contains(httpResponse.statusCode) else {
-			throw .responseError(statusCode: httpResponse.statusCode)
+			let message = try? await decode(ErrorBody.self, from: data, using: jsonDecoder).message
+			throw .httpError(statusCode: httpResponse.statusCode, message: message)
 		}
 
 		do {
-			return try jsonDecoder.decode(Response.self, from: data)
+			return try await decode(Response.self, from: data, using: jsonDecoder)
 		} catch {
-			throw .jsonError(underlyingError: error)
+			throw .decodingError(underlyingError: error)
 		}
+	}
+
+	/// Make sure the decoding step is ran off the `@MainActor`.
+	@concurrent
+	private func decode<T: Decodable & Sendable>(_ type: T.Type, from data: Data, using decoder: JSONDecoder) async throws -> T {
+		try decoder.decode(type, from: data)
 	}
 }
