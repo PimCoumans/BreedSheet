@@ -1,7 +1,7 @@
 #  BreedSheet code assessment
 *A cheatsheet for cat breeds*
 
-<img align="left" src="Assets/Screenshot.png" alt="App Screenshot" />
+<img align="left" src="Assets/Screenshot.png" alt="App Screenshot" width="220" />
 
 ### The task
 This simple project fetches cat breeds from The Cat API and displays them in a list with an image and title. For this
