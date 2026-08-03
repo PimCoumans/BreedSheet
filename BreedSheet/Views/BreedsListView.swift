@@ -80,35 +80,27 @@ extension BreedsListView {
 }
 
 #if DEBUG
-struct PreviewCatAPI: CatAPI {
-	let shouldFail: Bool
-	let breeds: [Breed]
-	func fetchBreeds(page: Int, limit: Int) async throws(CatAPIError) -> [Breed] {
-		try? await Task.sleep(for: .seconds(1))
-		if shouldFail {
-			throw .responseError(statusCode: 403)
-		} else {
-			return breeds
-		}
+#Preview("Success") {
+	NavigationStack {
+		BreedsListView(viewModel: BreedsViewModel(
+			apiClient: PreviewCatAPI(scenario: .success(breeds: PreviewCatAPI.sampleBreeds))
+		))
 	}
 }
 
-#Preview("Success") {
-	let sampleBreeds = [
-		Breed(id: "abys", name: "Abyssinian", image: .init(url: URL(string: "https://cdn2.thecatapi.com/images/0XYvRd7oD.jpg")!)),
-		Breed(id: "aege", name: "Aegean", image: .init(url: URL(string: "https://cdn2.thecatapi.com/images/ozEvzdVM-.jpg")!))
-	]
-	let viewModel = BreedsViewModel(apiClient: PreviewCatAPI(shouldFail: false, breeds: sampleBreeds))
-	BreedsListView(viewModel: viewModel)
-}
-
 #Preview("Failed") {
-	let viewModel = BreedsViewModel(apiClient: PreviewCatAPI(shouldFail: true, breeds: []))
-	BreedsListView(viewModel: viewModel)
+	NavigationStack {
+		BreedsListView(viewModel: BreedsViewModel(
+			apiClient: PreviewCatAPI(scenario: .failure(.httpError(statusCode: 403, message: "Invalid API key")))
+		))
+	}
 }
 
 #Preview("Empty") {
-	let viewModel = BreedsViewModel(apiClient: PreviewCatAPI(shouldFail: false, breeds: []))
-	BreedsListView(viewModel: viewModel)
+	NavigationStack {
+		BreedsListView(viewModel: BreedsViewModel(
+			apiClient: PreviewCatAPI(scenario: .empty)
+		))
+	}
 }
 #endif

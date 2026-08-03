@@ -21,6 +21,11 @@ struct BreedSheetApp: App {
 	}
 
 	private static func makeAPIClient() -> any CatAPI {
+		#if DEBUG
+		if let uiTestScenario = PreviewCatAPI.uiTestScenario {
+			return uiTestScenario
+		}
+		#endif
 		do {
 			return try LiveCatAPI(baseURL: AppSecrets.catAPIBaseURL(), apiKey: AppSecrets.catAPIKey())
 		} catch {
